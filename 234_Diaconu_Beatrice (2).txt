@@ -1,0 +1,82 @@
+select * from instructor;
+select * from clasa;
+--1
+
+select *
+from instructor i
+inner join clasa c
+on i.id_instructor = c.cod_instructor
+inner join disciplina d
+on d.id_disciplina = c.cod_disciplina
+inner join participa_la p
+on p.cod_clasa = c.id_clasa
+where TO_CHAR(data_nasterii, 'YYYY') = '1995'
+group by i.id_instructor, p.cod_clasa
+having count(*) = p.cod_client;
+
+select * 
+from instructor
+where id_instructor in 
+(
+select cod_instructor
+from clasa
+where id_clasa in
+(
+select cod_clasa 
+from participa_la
+where cod_clasa in 
+( 
+select id_clasa
+from clasa c
+join disciplina d on
+c.cod_disciplina = d.id_disciplina
+where lower(denumire) = 'pilates'
+)))
+and  to_char(data_nasterii,'YYYY') = '1995';
+--2
+select d.denumire
+from disciplina d
+inner join clasa c
+on d.id_disciplina = c.cod_disciplina
+inner join participa_la p
+on c.id_clasa = p.cod_clasa
+where rownum = 1
+group by d.denumire, c.cod_disciplina, p.cod_client
+having count(*) = p.cod_client;
+
+--3
+select c.nume|| ' ' || c.prenume
+from client cli
+inner join participa_la p
+on cli.id_client = p.cod_client;
+
+select nume||' 'prenume
+from client
+where id_client in
+(
+select cod_client
+from participa_la
+where cod_clasa in
+(
+select cod_disciplina
+from clasa c
+inner join disciplina d
+on c.cod_disciplina = d.id_disciplina
+where lower(d.denumire) = 'aerobic'
+and to_char(d.data_desfasurarii,'MM)' = '03'
+and to_char(d.data_desfasurarii,'YYYY') = '2020' 
+));
+--4
+delete p 
+from participa_la p
+inner join clasa c
+on c.id_clasa = p.cod_clasa
+inner join instructor i
+on i.id_instructor = c.cod_instructor
+where lower(nume) = 'marin' and lower(prenume) = 'antonescu';
+rollback;
+--5
+
+alter tabel clasa
+add nr_participanti
+check (nr_participanti > 0);
